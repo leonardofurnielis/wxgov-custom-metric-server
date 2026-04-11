@@ -3,9 +3,9 @@ import os
 from typing import Any, Optional
 
 import pandas as pd
-from beekeeper.monitors.watsonx import WatsonxCustomMetricsManager
 from ibm_watson_openscale import APIClient
 from ibm_watson_openscale.utils import IAMAuthenticator
+from novastack.observability.watsonx import WatsonxCustomMetricsManager
 
 # ---------------------------------------------------------------------------
 # Configuration

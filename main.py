@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 
 from utils.async_threading import run_in_thread
 from wos.common import extract_prompt_fields, get_payload_data, store_metrics
-from wos.custom_evaluator import run_evaluator
+from wos.custom_quality_evaluator import run_evaluator
 
 # ---------------------------------------------------------------------------
 # Logger setup
@@ -63,8 +63,8 @@ def index() -> dict[str, str]:
     return {"status": "FastAPI is running!"}
 
 
-@app.post("/compute/custom_metric")
-async def compute_custom_metric(request: Request):
+@app.post("/compute/custom_quality_metrics")
+async def custom_quality_metrics(request: Request):
 
     try:
         request_body: dict[str, Any] = await request.json()
