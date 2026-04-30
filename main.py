@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from utils.async_threading import run_in_thread
-from wos.common import extract_prompt_fields, get_payload_data, store_metrics
+from wos.common import extract_prompt_fields, get_dataset_records, store_metrics
 from wos.custom_quality_evaluator import run_evaluator
 
 # ---------------------------------------------------------------------------
@@ -63,8 +63,8 @@ def index() -> dict[str, str]:
     return {"status": "FastAPI is running!"}
 
 
-@app.post("/compute/custom_quality_metrics")
-async def custom_quality_metrics(request: Request):
+@app.post("/compute/genai_context_free")
+async def genai_context_free(request: Request):
 
     try:
         request_body: dict[str, Any] = await request.json()
@@ -96,7 +96,7 @@ async def custom_quality_metrics(request: Request):
 
     try:
         prompt_properties = extract_prompt_fields(subscription_id)
-        payload_data = get_payload_data(
+        payload_data = get_dataset_records(
             payload_dataset_id,
             monitor_inst_id,
             prompt_properties,

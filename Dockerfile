@@ -1,4 +1,4 @@
-FROM registry.hub.docker.com/library/python:3.11.9-slim
+FROM registry.hub.docker.com/library/python:3.12.13-slim
 
 # Create a directory for the application
 WORKDIR /home/vcap/app
@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt ./
 
 # Install Python dependencies
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . . 

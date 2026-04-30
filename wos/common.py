@@ -11,6 +11,7 @@ from novastack.observability.watsonx import WatsonxCustomMetricsManager
 # Configuration
 # ---------------------------------------------------------------------------
 API_KEY = os.environ.get("OPENSCALE_API_KEY")
+RECORDS_LIMIT = os.environ.get("RECORDS_LIMIT", 500)
 
 if not API_KEY:
     raise RuntimeError("Environment variable OPENSCALE_API_KEY is not set")
@@ -110,20 +111,20 @@ def get_last_run_date(monitor_instance_id) -> Optional[str]:
 
 
 # ---------------------------------------------------------------------------
-# Payload utilities
+# Dataset utilities
 # ---------------------------------------------------------------------------
-def get_payload_data(
-    payload_dataset_id, monitor_instance_id, asset_properties
+def get_dataset_records(
+    dataset_id, monitor_instance_id, asset_properties
 ) -> pd.DataFrame:
     wos_client = _get_client()
 
     start_date = get_last_run_date(monitor_instance_id)
     start_date = start_date or None
-    logger.info("Payload Dataset ID: %s", payload_dataset_id)
-    logger.info("Fetching payload data greater than or equal to: %s", start_date)
+    logger.info("Dataset ID: %s", dataset_id)
+    logger.info("Fetching dataset records greater than or equal to: %s", start_date)
 
     data = wos_client.data_sets.get_list_of_records(
-        data_set_id=payload_dataset_id, start=start_date, limit=500
+        data_set_id=dataset_id, start=start_date, limit=RECORDS_LIMIT
     ).result
 
     rows = []
@@ -140,7 +141,7 @@ def get_payload_data(
         row["generated_text"] = values.get("generated_text")
         rows.append(row)
 
-    logger.info("Number of records in payload data: %d", len(rows))
+    logger.info("Number of records in dataset: %d", len(rows))
 
     return pd.DataFrame(rows)
 

@@ -11,6 +11,7 @@ from ibm_watsonx_gov.metrics import (
     SocialBiasMetric,
     TextGradeLevelMetric,
     TextReadingEaseMetric,
+    ViolenceMetric,
 )
 
 # ---------------------------------------------------------------------------
@@ -69,6 +70,7 @@ def run_evaluator(data, asset_properties) -> dict[str, float]:
         SocialBiasMetric(),
         JailbreakMetric(),
         TextGradeLevelMetric(),
+        ViolenceMetric()
     ]
 
     config = GenAIConfiguration(

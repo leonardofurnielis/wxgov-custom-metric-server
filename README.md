@@ -34,6 +34,6 @@ deactivate
 To run this code using Docker container execute the following commands into project root directory
 
 ```bash
-$ docker build -t <image_name> .
-$ docker run -p 8000:8000 -d <image_name>
+$ docker build --platform linux/amd64 -t <image_name> .
+$ docker run -p 8000:8000 <image_name>
 ```
