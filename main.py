@@ -11,8 +11,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from utils.async_threading import run_in_thread
-from wos.common import extract_prompt_fields, get_dataset_records, store_metrics
-from wos.custom_quality_evaluator import run_evaluator
+from wos.common import (
+    extract_prompt_fields,
+    get_dataset_records,
+    store_metrics,
+    store_record_metrics,
+)
+from wos.custom_quality_evaluator import (
+    run_evaluator,
+    get_metrics_mean,
+    get_records_metric,
+)
 
 # ---------------------------------------------------------------------------
 # Logger setup
@@ -87,6 +96,7 @@ async def genai_context_free(request: Request):
     monitor_inst_id = data.get("custom_monitor_instance_id")
     payload_dataset_id = data.get("payload_dataset_id")
     run_id = data.get("custom_monitor_run_id")
+    custom_dataset_id = data.get("custom_dataset_id")
 
     logger.info(
         "Processing | subscription_id=%s run_id=%s",
@@ -107,7 +117,7 @@ async def genai_context_free(request: Request):
 
     try:
         loop = asyncio.get_event_loop()
-        custom_metrics = await loop.run_in_executor(
+        custom_metrics_result = await loop.run_in_executor(
             executor,
             run_in_thread,
             run_evaluator,
@@ -119,7 +129,14 @@ async def genai_context_free(request: Request):
         raise HTTPException(status_code=500, detail=str(exc))
 
     try:
-        store_metrics(monitor_inst_id, run_id, custom_metrics)
+        metrics_mean = get_metrics_mean(custom_metrics_result)
+        store_metrics(monitor_inst_id, run_id, metrics_mean)
+
+        if custom_dataset_id:
+            records_metrics = get_records_metric(custom_metrics_result)
+            store_record_metrics(
+                run_id, custom_dataset_id, payload_dataset_id, "payload", records_metrics
+            )
     except Exception as ex:
         logger.exception("Failed to store metrics")
         return JSONResponse(

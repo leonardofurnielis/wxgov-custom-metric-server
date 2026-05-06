@@ -95,10 +95,9 @@ def get_last_run_date(monitor_instance_id) -> Optional[str]:
         ).result.to_dict()
 
         finished_runs = [
-            r for r in runs_dict["runs"]
-            if r.get("entity", {})
-                  .get("status", {})
-                  .get("state") == "finished"
+            r
+            for r in runs_dict["runs"]
+            if r.get("entity", {}).get("status", {}).get("state") == "finished"
         ]
 
         if not finished_runs:
@@ -138,6 +137,7 @@ def get_dataset_records(
             if field in values
         }
 
+        row["record_id"] = values.get("scoring_id")
         row["generated_text"] = values.get("generated_text")
         rows.append(row)
 
@@ -165,3 +165,25 @@ def store_metrics(monitor_instance_id, run_id, metrics) -> None:
             run_id,
         )
         raise RuntimeError("Failed to store metrics data") from exc
+
+
+def store_record_metrics(
+    run_id, custom_data_set_id, reference_data_set_id, computed_on, metrics
+) -> None:
+    try:
+        metric_manager = WatsonxCustomMetricsManager(api_key=API_KEY)
+
+        metric_manager.store_record_metric_data(
+            custom_data_set_id=custom_data_set_id,
+            reference_data_set_id=reference_data_set_id,
+            computed_on=computed_on,
+            run_id=run_id,
+            request_records=metrics,
+        )
+    except Exception as exc:
+        logger.error(
+            "Failed to store record metrics for custom_data_set_id=%s, run_id=%s",
+            custom_data_set_id,
+            run_id,
+        )
+        raise RuntimeError("Failed to store record metrics data") from exc

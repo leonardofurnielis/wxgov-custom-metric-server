@@ -1,6 +1,7 @@
 import logging
 import os
 from collections import defaultdict
+from datetime import datetime, timezone
 
 from ibm_watsonx_gov.clients.api_client import APIClient as GovAPIClient
 from ibm_watsonx_gov.config import Credentials, GenAIConfiguration
@@ -33,30 +34,6 @@ logging.basicConfig(
 
 
 # ---------------------------------------------------------------------------
-# Utility functions
-# ---------------------------------------------------------------------------
-def _calc_mean(records) -> dict[str, float]:
-    metric_sums = defaultdict(float)
-    metric_counts = defaultdict(int)
-
-    for record in records:
-        name = record.get("name")
-        value = record.get("value")
-
-        if name is None or value is None:
-            continue
-
-        metric_sums[name] += value
-        metric_counts[name] += 1
-
-    return {
-        name: metric_sums[name] / metric_counts[name]
-        for name in metric_sums
-        if metric_counts[name] > 0
-    }
-
-
-# ---------------------------------------------------------------------------
 # Evaluator entry point
 # ---------------------------------------------------------------------------
 def run_evaluator(data, asset_properties) -> dict[str, float]:
@@ -70,7 +47,7 @@ def run_evaluator(data, asset_properties) -> dict[str, float]:
         SocialBiasMetric(),
         JailbreakMetric(),
         TextGradeLevelMetric(),
-        ViolenceMetric()
+        ViolenceMetric(),
     ]
 
     config = GenAIConfiguration(
@@ -95,4 +72,49 @@ def run_evaluator(data, asset_properties) -> dict[str, float]:
         logger.warning("Evaluator returned no metric results.")
         return {}
 
-    return _calc_mean(result_dict)
+    return result_dict
+
+
+# ---------------------------------------------------------------------------
+# Utility functions
+# ---------------------------------------------------------------------------
+def get_metrics_mean(records) -> dict[str, float]:
+    metric_sums = defaultdict(float)
+    metric_counts = defaultdict(int)
+
+    for record in records:
+        name = record.get("name")
+        value = record.get("value")
+
+        if name is None or value is None:
+            continue
+
+        metric_sums[name] += value
+        metric_counts[name] += 1
+
+    return {
+        name: metric_sums[name] / metric_counts[name]
+        for name in metric_sums
+        if metric_counts[name] > 0
+    }
+
+
+def get_records_metric(data):
+    grouped = defaultdict(dict)
+
+    # Group by record_id
+    for item in data:
+        grouped[item["record_id"]][item["name"]] = item["value"]
+
+    results = []
+
+    for record_id, metrics in grouped.items():
+        results.append(
+            {
+                "reference_record_id": record_id,
+                "record_timestamp": datetime.now(timezone.utc).isoformat(),
+                **metrics,
+            }
+        )
+
+    return results
