@@ -62,6 +62,7 @@ def extract_prompt_fields(subscription_id) -> dict[str, Any]:
     # Only extract context_fields for RAG
     if problem_type == "retrieval_augmented_generation":
         context_fields = set(asset_props.get("context_fields", []))
+        question_field = asset_props.get("question_field", None)
 
         # Remove duplicates
         feature_fields = feature_fields - context_fields
@@ -72,6 +73,7 @@ def extract_prompt_fields(subscription_id) -> dict[str, Any]:
         return {
             "problem_type": problem_type,
             "feature_fields": sorted(feature_fields),
+            "question_field": question_field,
             "context_fields": sorted(context_fields),
             "fields": sorted(all_fields),
         }
@@ -149,11 +151,11 @@ def get_dataset_records(
 # ---------------------------------------------------------------------------
 # Metrics storage
 # ---------------------------------------------------------------------------
-def store_metrics(monitor_instance_id, run_id, metrics) -> None:
+def log_metrics(monitor_instance_id, run_id, metrics) -> None:
     try:
-        metric_manager = WatsonxCustomMetricsManager(api_key=API_KEY)
+        custom_metric_mgr = WatsonxCustomMetricsManager(api_key=API_KEY)
 
-        metric_manager.store_metric_data(
+        custom_metric_mgr.log_metrics(
             monitor_instance_id=monitor_instance_id,
             run_id=run_id,
             request_records=metrics,
@@ -167,13 +169,13 @@ def store_metrics(monitor_instance_id, run_id, metrics) -> None:
         raise RuntimeError("Failed to store metrics data") from exc
 
 
-def store_record_metrics(
+def log_record_metrics(
     run_id, custom_data_set_id, reference_data_set_id, computed_on, metrics
 ) -> None:
     try:
-        metric_manager = WatsonxCustomMetricsManager(api_key=API_KEY)
+        custom_metric_mgr = WatsonxCustomMetricsManager(api_key=API_KEY)
 
-        metric_manager.store_record_metric_data(
+        custom_metric_mgr.log_record_metrics(
             custom_data_set_id=custom_data_set_id,
             reference_data_set_id=reference_data_set_id,
             computed_on=computed_on,

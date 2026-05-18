@@ -14,13 +14,13 @@ from utils.async_threading import run_in_thread
 from wos.common import (
     extract_prompt_fields,
     get_dataset_records,
-    store_metrics,
-    store_record_metrics,
+    log_metrics,
+    log_record_metrics,
 )
 from wos.custom_quality_evaluator import (
-    run_evaluator,
     get_metrics_mean,
     get_records_metric,
+    run_evaluator,
 )
 
 # ---------------------------------------------------------------------------
@@ -130,12 +130,16 @@ async def genai_context_free(request: Request):
 
     try:
         metrics_mean = get_metrics_mean(custom_metrics_result)
-        store_metrics(monitor_inst_id, run_id, metrics_mean)
+        log_metrics(monitor_inst_id, run_id, metrics_mean)
 
         if custom_dataset_id:
             records_metrics = get_records_metric(custom_metrics_result)
-            store_record_metrics(
-                run_id, custom_dataset_id, payload_dataset_id, "payload", records_metrics
+            log_record_metrics(
+                run_id,
+                custom_dataset_id,
+                payload_dataset_id,
+                "payload",
+                records_metrics,
             )
     except Exception as ex:
         logger.exception("Failed to store metrics")

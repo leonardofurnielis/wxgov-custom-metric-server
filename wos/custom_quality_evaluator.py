@@ -51,7 +51,9 @@ def run_evaluator(data, asset_properties) -> dict[str, float]:
     ]
 
     config = GenAIConfiguration(
-        input_fields=asset_properties.get("feature_fields", []),
+        input_fields=asset_properties.get("feature_fields", [])
+        if asset_properties.get("problem_type") != "retrieval_augmented_generation"
+        else asset_properties.get("question_field", []),
         context_fields=asset_properties.get("context_fields", [])
         if asset_properties.get("problem_type") == "retrieval_augmented_generation"
         else [],

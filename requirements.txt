@@ -1,7 +1,7 @@
 fastapi==0.135.3
 fastapi[standard]==0.135.3
 uvicorn==0.44.0
-novastack-observability-watsonx==1.0.5
+novastack-observability-watsonx==1.1.1
 ibm-watsonx-gov==1.4.2
 pandas==2.2.3
 textstat==0.7.12
