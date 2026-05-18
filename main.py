@@ -17,7 +17,7 @@ from wos.common import (
     log_metrics,
     log_record_metrics,
 )
-from wos.custom_quality_evaluator import (
+from wos.context_free_evaluator import (
     get_metrics_mean,
     get_records_metric,
     run_evaluator,
