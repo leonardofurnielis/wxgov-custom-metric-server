@@ -141,10 +141,10 @@ async def genai_context_free(request: Request):
                 "payload",
                 records_metrics,
             )
-    except Exception as ex:
+    except Exception as e:
         logger.exception("Failed to store metrics")
         return JSONResponse(
-            content={"predictions": [], "errors": [str(exc)]},
+            content={"predictions": [], "errors": [str(e)]},
             status_code=500,
         )
 
