@@ -109,7 +109,7 @@ def get_records_metric(data):
 
     # Group by record_id
     for item in data:
-        grouped[item["record_id"]][item["name"]] = item["value"]
+        grouped[item["record_id"]][item["name"]] = item.get("value", -1)
 
     results = []
 
