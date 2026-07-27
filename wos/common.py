@@ -3,9 +3,9 @@ import os
 from typing import Any, Optional
 
 import pandas as pd
+from donkey.observability.watsonx import WatsonxGovClient
 from ibm_watson_openscale import APIClient
 from ibm_watson_openscale.utils import IAMAuthenticator
-from novastack.observability.watsonx import WatsonxCustomMetricsManager
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -153,9 +153,11 @@ def get_dataset_records(
 # ---------------------------------------------------------------------------
 def log_metrics(monitor_instance_id, run_id, metrics) -> None:
     try:
-        custom_metric_mgr = WatsonxCustomMetricsManager(api_key=API_KEY)
+        custom_metric_mgr = WatsonxGovClient(
+            authenticator=IAMAuthenticator(apikey=API_KEY),
+        )
 
-        custom_metric_mgr.log_metrics(
+        custom_metric_mgr.log_measurements(
             monitor_instance_id=monitor_instance_id,
             run_id=run_id,
             request_records=metrics,
@@ -173,9 +175,11 @@ def log_record_metrics(
     run_id, custom_data_set_id, reference_data_set_id, computed_on, metrics
 ) -> None:
     try:
-        custom_metric_mgr = WatsonxCustomMetricsManager(api_key=API_KEY)
+        custom_metric_mgr = WatsonxGovClient(
+            authenticator=IAMAuthenticator(apikey=API_KEY),
+        )
 
-        custom_metric_mgr.log_record_metrics(
+        custom_metric_mgr.log_record_measurements(
             custom_data_set_id=custom_data_set_id,
             reference_data_set_id=reference_data_set_id,
             computed_on=computed_on,
