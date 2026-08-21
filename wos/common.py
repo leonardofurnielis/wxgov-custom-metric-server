@@ -3,9 +3,9 @@ import os
 from typing import Any, Optional
 
 import pandas as pd
-from donkey.observability.watsonx import WatsonxGovClient
 from ibm_watson_openscale import APIClient
 from ibm_watson_openscale.utils import IAMAuthenticator
+from parakeet_index.observability.watsonx import WatsonxGovClient
 
 # ---------------------------------------------------------------------------
 # Configuration
